@@ -34,8 +34,7 @@ export default function RiskScoreGauge({ threats = [] }) {
   }
 
   // Semicircular Arc Math
-  // Angle from -180 deg to 0 deg (or math coordinates)
-  // Radius = 75, Center = (100, 95)
+  // Angle goes from PI (left, score 0 at px=28, py=90) to 0 (right, score 1000 at px=172, py=90)
   const radius = 72;
   const cx = 100;
   const cy = 90;
@@ -46,10 +45,13 @@ export default function RiskScoreGauge({ threats = [] }) {
   const arcLength = Math.PI * radius;
   const strokeDashoffset = arcLength * (1 - ratio);
 
-  // Indicator needle/circle position
-  const angle = Math.PI * (1 - ratio); // from PI (left, score 0) to 0 (right, score 1000)
-  const px = cx - radius * Math.cos(angle);
-  const py = cy - radius * Math.sin(angle);
+  // Indicator needle/circle position:
+  // At ratio = 0: angle = PI => cos(PI) = -1 => px = 100 + 72*(-1) = 28, py = 90
+  // At ratio = 0.5: angle = PI/2 => cos(PI/2) = 0 => px = 100, py = 90 - 72 = 18
+  // At ratio = 1: angle = 0 => cos(0) = 1 => px = 100 + 72*(1) = 172, py = 90
+  const currentAngle = Math.PI * (1 - ratio);
+  const px = cx + radius * Math.cos(currentAngle);
+  const py = cy - radius * Math.sin(currentAngle);
 
   return (
     <div className="card">
